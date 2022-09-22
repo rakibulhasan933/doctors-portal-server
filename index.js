@@ -30,6 +30,8 @@ async function run() {
 		// Post
 		app.post('/booking', async (req, res) => {
 			const booking = req.body;
+			console.log(booking);
+			const query = { treatment: booking.treatmentName, date: booking.date, patient: booking.patient };
 			const result = await bookingCollection.insertOne(booking);
 			res.send(result);
 		});
