@@ -27,13 +27,31 @@ async function run() {
 			const service = await cursor.toArray();
 			res.send(service);
 		});
+		// Find all services slots
+		app.get('/available', async (req, res) => {
+			const date = req.query.date;
+			const services = await servicesCollection.find().toArray();
+			const query = { date: date };
+			const booking = await bookingCollection.find(query).toArray();
+			// 3rd
+			services.forEach(service => {
+				const servicesBooking = booking.filter(b => b.treatment === service.name);
+				const booked = servicesBooking.map(s => s.slot);
+				const available = service.slot.filter(s => !booked.includes(s));
+				service.available = available;
+			})
+
+			res.send(services);
+		})
+
 		// Post
 		app.post('/booking', async (req, res) => {
 			const booking = req.body;
 			console.log(booking);
 			const result = await bookingCollection.insertOne(booking);
-			return res.send({ success: true, result });
+			res.send({ success: true, result });
 		});
+
 
 
 	} finally {
