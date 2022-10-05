@@ -22,36 +22,33 @@ async function run() {
 
 		// GET API SERVICES
 		app.get('/services', async (req, res) => {
-			const query = {};
-			const cursor = servicesCollection.find(query);
+			const cursor = servicesCollection.find({});
 			const service = await cursor.toArray();
 			res.send(service);
 		});
 		// Find all services slots
-		app.get('/available', async (req, res) => {
-			const date = req.query.date;
-			const services = await servicesCollection.find().toArray();
-			const query = { date: date };
-			const booking = await bookingCollection.find(query).toArray();
-			// 3rd
-			services.forEach(service => {
-				const servicesBooking = booking.filter(b => b.treatment === service.name);
-				const booked = servicesBooking.map(s => s.slot);
-				const available = service.slot.filter(s => !booked.includes(s));
-				service.available = available;
-			})
-
-			res.send(services);
-		})
+		// app.get('/available', async (req, res) => {
+		// 	const date = req.query.date;
+		// 	const services = await servicesCollection.find().toArray();
+		// 	const query = { date: date };
+		// 	const booking = await bookingCollection.find(query).toArray();
+		// 	// 3rd
+		// 	services.forEach(service => {
+		// 		const servicesBooking = booking.filter(b => b.treatment === service.name);
+		// 		const bookedSlots = servicesBooking.map(s => s.slot);
+		// 		const available = service.slots.filter(s => !bookedSlots.includes(s));
+		// 		service.slots = available;
+		// 	})
+		// 	res.send(services);
+		// })
 
 		// Post
 		app.post('/booking', async (req, res) => {
 			const booking = req.body;
-			console.log(booking);
+			// console.log(booking);
 			const result = await bookingCollection.insertOne(booking);
-			res.send({ success: true, result });
+			res.send(result);
 		});
-
 
 
 	} finally {
