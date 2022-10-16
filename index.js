@@ -12,13 +12,13 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t2kmaoa.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
 	try {
 		const servicesCollection = client.db("doctors_portal").collection("services");
 		const bookingCollection = client.db("doctors_portal").collection("booking");
+		const usersCollection = client.db("doctors_portal").collection("users");
 		console.log('Database connected');
 
 		// GET API SERVICES
@@ -60,7 +60,20 @@ async function run() {
 			const cursor = bookingCollection.find({});
 			const booking = await cursor.toArray();
 			res.send(booking);
-		})
+		});
+
+		// user added
+		app.get('users/:email', async (req, res) => {
+			const email = req.params.email;
+			const user = req.body;
+			const filter = { email: email };
+			const options = { upsert: true };
+			const updateDoc = {
+				$set: user
+			};
+			const result = await usersCollection.updateOne(filter, updateDoc, options);
+			res.send(result);
+		});
 
 
 	} finally {
