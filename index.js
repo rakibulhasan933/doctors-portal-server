@@ -11,13 +11,14 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.41bbapx.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t2kmaoa.mongodb.net/?retryWrites=true&w=majority`;
+console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
 	try {
-		const servicesCollection = client.db("doctors-portal").collection("services");
-		const bookingCollection = client.db("doctors-portal").collection("booking");
+		const servicesCollection = client.db("doctors_portal").collection("services");
+		const bookingCollection = client.db("doctors_portal").collection("booking");
 		console.log('Database connected');
 
 		// GET API SERVICES
@@ -27,28 +28,39 @@ async function run() {
 			res.send(service);
 		});
 		// Find all services slots
-		// app.get('/available', async (req, res) => {
-		// 	const date = req.query.date;
-		// 	const services = await servicesCollection.find().toArray();
-		// 	const query = { date: date };
-		// 	const booking = await bookingCollection.find(query).toArray();
-		// 	// 3rd
-		// 	services.forEach(service => {
-		// 		const servicesBooking = booking.filter(b => b.treatment === service.name);
-		// 		const bookedSlots = servicesBooking.map(s => s.slot);
-		// 		const available = service.slots.filter(s => !bookedSlots.includes(s));
-		// 		service.slots = available;
-		// 	})
-		// 	res.send(services);
-		// })
+		app.get('/available', async (req, res) => {
+			const date = req.query.date;
+			const services = await servicesCollection.find().toArray();
+			const query = { date: date };
+			const booking = await bookingCollection.find(query).toArray();
+			// 3rd
+			services.forEach(service => {
+				const servicesBooking = booking.filter(b => b.treatment === service.name);
+				const bookedSlots = servicesBooking.map(s => s.slot);
+				const available = service.slots.filter(s => !bookedSlots.includes(s));
+				service.slots = available;
+			})
+			res.send(services);
+		})
 
 		// Post
 		app.post('/booking', async (req, res) => {
 			const booking = req.body;
-			// console.log(booking);
+			const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient }
+			const exists = await bookingCollection.findOne(query);
+			if (exists) {
+				return res.send({ success: false, booking: exists })
+			}
 			const result = await bookingCollection.insertOne(booking);
-			res.send(result);
+			return res.send({ success: true, result });
 		});
+
+		// Booking 
+		app.get('/booking', async (req, res) => {
+			const cursor = bookingCollection.find({});
+			const booking = await cursor.toArray();
+			res.send(booking);
+		})
 
 
 	} finally {
