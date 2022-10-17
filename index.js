@@ -74,7 +74,6 @@ async function run() {
 		// User specific booking List API
 		app.get('/booking', verifyJWT, async (req, res) => {
 			const patient = req.query.patient;
-			// console.log(patient);
 			const decodedEmail = req.decoded.email;
 			if (patient === decodedEmail) {
 				const query = { patient: patient };
@@ -104,6 +103,11 @@ async function run() {
 			const result = await usersCollection.updateOne(filter, updateDoc, options);
 			const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
 			res.send({ result, token });
+		});
+		// ALL USER LIST
+		app.get('/users', async (req, res) => {
+			const users = await usersCollection.find().toArray();
+			res.send(users);
 		});
 
 
