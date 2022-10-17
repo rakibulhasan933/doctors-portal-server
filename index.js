@@ -71,18 +71,25 @@ async function run() {
 			return res.send({ success: true, result });
 		});
 
-		// Booking 
+		// User specific booking List API
 		app.get('/booking', verifyJWT, async (req, res) => {
 			const patient = req.query.patient;
+			// console.log(patient);
 			const decodedEmail = req.decoded.email;
 			if (patient === decodedEmail) {
 				const query = { patient: patient };
-				const bookings = await bookingCollection.find(query).toArray();
-				return res.send(bookings);
+				const booking = await bookingCollection.find(query).toArray();
+				return res.send(booking);
 			}
 			else {
-				return res.status(403).send({ message: 'forbidden access' });
-			}
+				return res.status(403).send({ message: 'Forbidden access' })
+			};
+		});
+
+		// All booking
+		app.get('/bookings', async (req, res) => {
+			const booking = await bookingCollection.find().toArray();
+			res.send(booking);
 		});
 
 		// user added
