@@ -90,6 +90,16 @@ async function run() {
 			const booking = await bookingCollection.find().toArray();
 			res.send(booking);
 		});
+		// make admin
+		app.put('/user/admin/:email', async (req, res) => {
+			const email = req.params.email;
+			const filter = { email: email };
+			const updateDoc = {
+				$set: { role: 'admin' },
+			};
+			const result = await usersCollection.updateOne(filter, updateDoc);
+			res.send(result);
+		});
 
 		// user added
 		app.put('/user/:email', async (req, res) => {
@@ -105,7 +115,7 @@ async function run() {
 			res.send({ result, token });
 		});
 		// ALL USER LIST
-		app.get('/users', async (req, res) => {
+		app.get('/users', verifyJWT, async (req, res) => {
 			const users = await usersCollection.find().toArray();
 			res.send(users);
 		});
