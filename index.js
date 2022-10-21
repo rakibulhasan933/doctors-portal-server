@@ -40,7 +40,7 @@ async function run() {
 
 		// GET API SERVICES
 		app.get('/services', async (req, res) => {
-			const cursor = servicesCollection.find({});
+			const cursor = servicesCollection.find({}).project({ name: 1 });
 			const service = await cursor.toArray();
 			res.send(service);
 		});
