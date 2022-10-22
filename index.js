@@ -146,6 +146,11 @@ async function run() {
 			const result = await doctorsCollection.insertOne(doctor);
 			res.send(result)
 		});
+		// GET DOCTOR
+		app.get('/doctors', verifyJWT, verifyAdmin, async (req, res) => {
+			const doctors = await doctorsCollection.find().toArray();
+			res.send(doctors);
+		});
 
 
 	} finally {
