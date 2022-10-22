@@ -36,6 +36,7 @@ async function run() {
 		const servicesCollection = client.db("doctors_portal").collection("services");
 		const bookingCollection = client.db("doctors_portal").collection("booking");
 		const usersCollection = client.db("doctors_portal").collection("users");
+		const doctorsCollection = client.db("doctors_portal").collection("doctors");
 		console.log('Database connected');
 
 		// GET API SERVICES
@@ -135,6 +136,12 @@ async function run() {
 		app.get('/users', verifyJWT, async (req, res) => {
 			const users = await usersCollection.find().toArray();
 			res.send(users);
+		});
+		// POST DOCTOR
+		app.post('/doctor', async (req, res) => {
+			const doctor = req.body;
+			const result = await doctorsCollection.insertOne(doctor);
+			res.send(result)
 		});
 
 
