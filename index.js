@@ -151,6 +151,13 @@ async function run() {
 			const doctors = await doctorsCollection.find().toArray();
 			res.send(doctors);
 		});
+		// DOCTOR DELETED
+		app.delete('/doctor-remove/:id', verifyJWT, verifyAdmin, async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: ObjectId(id) };
+			const result = await doctorsCollection.deleteOne(query);
+			res.send(result);
+		})
 
 
 	} finally {
