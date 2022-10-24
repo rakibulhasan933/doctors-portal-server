@@ -73,7 +73,7 @@ async function run() {
 		})
 
 		// Post
-		app.post('/booking', async (req, res) => {
+		app.post('/booking', verifyJWT, async (req, res) => {
 			const booking = req.body;
 			const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient }
 			const exists = await bookingCollection.findOne(query);
@@ -141,10 +141,10 @@ async function run() {
 			res.send(users);
 		});
 		// POST DOCTOR
-		app.post('/doctor', async (req, res) => {
+		app.post('/doctor', verifyJWT, verifyAdmin, async (req, res) => {
 			const doctor = req.body;
 			const result = await doctorsCollection.insertOne(doctor);
-			res.send(result)
+			res.send(result);
 		});
 		// GET DOCTOR
 		app.get('/doctors', verifyJWT, verifyAdmin, async (req, res) => {
