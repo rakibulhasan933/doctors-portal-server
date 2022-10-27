@@ -4,7 +4,7 @@ const cors = require('cors');
 const ObjectId = require('mongodb').ObjectId;
 const dotenv = require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const e = require('express');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
 const app = express();
@@ -49,6 +49,24 @@ async function run() {
 				res.status(403).send({ message: 'forbidden access' });
 			}
 		}
+
+
+		// PAYMENT 
+		app.post('/create-payment-intent', async (req, res) => {
+			const service = req.body;
+			const price = service.price;
+			const amount = price * 100;
+			const paymentIntent = await stripe.paymentIntents.create({
+				amount: amount,
+				currency: "usd",
+				payment_method_types: [
+					"card"
+				],
+			});
+			res.send({
+				clientSecret: paymentIntent.client_secret,
+			});
+		});
 
 		// GET API SERVICES
 		app.get('/services', async (req, res) => {
