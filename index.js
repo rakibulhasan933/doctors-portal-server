@@ -37,6 +37,7 @@ async function run() {
 		const bookingCollection = client.db("doctors_portal").collection("booking");
 		const usersCollection = client.db("doctors_portal").collection("users");
 		const doctorsCollection = client.db("doctors_portal").collection("doctors");
+		const paymentsCollection = client.db("doctors_portal").collection("payments");
 		console.log('Database connected');
 
 		const verifyAdmin = async (req, res, next) => {
@@ -67,6 +68,22 @@ async function run() {
 				clientSecret: paymentIntent.client_secret,
 			});
 		});
+
+		// payment update
+		app.patch('/booking/:id', async (req, res) => {
+			const id = req.params.id;
+			const payment = req.body;
+			const filter = { _id: ObjectId(id) };
+			const updateDoc = {
+				$set: {
+					paid: true,
+					transactionId: payment.transactionId
+				}
+			};
+			const result = await paymentsCollection.insertOne(payment);
+			const updatedBooking = await bookingCollection.updateOne(filter, updateDoc);
+			res.send(updateDoc);
+		})
 
 		// GET API SERVICES
 		app.get('/services', async (req, res) => {
@@ -122,7 +139,7 @@ async function run() {
 			res.send(booking);
 		});
 		// id specific Booking
-		app.get('/bookings/:id', verifyJWT, async (req, res) => {
+		app.get('/booking/:id', verifyJWT, async (req, res) => {
 			const id = req.params.id;
 			const query = { _id: ObjectId(id) };
 			const booking = await bookingCollection.findOne(query);
