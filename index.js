@@ -82,7 +82,7 @@ async function run() {
 			};
 			const result = await paymentsCollection.insertOne(payment);
 			const updatedBooking = await bookingCollection.updateOne(filter, updateDoc);
-			res.send(updateDoc);
+			res.send({ updateDoc, result, updatedBooking });
 		})
 
 		// GET API SERVICES
