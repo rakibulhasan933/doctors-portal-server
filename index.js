@@ -199,6 +199,13 @@ async function run() {
 			const query = { _id: ObjectId(id) };
 			const result = await doctorsCollection.deleteOne(query);
 			res.send(result);
+		});
+		// USER DELETED
+		app.delete('/user-remove/:id', verifyJWT, verifyAdmin, async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: ObjectId(id) };
+			const result = await usersCollection.deleteOne(query);
+			res.send(result);
 		})
 
 
